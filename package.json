@@ -1,0 +1,14 @@
+{
+  "name": "phaser-top-down",
+  "version": "0.0.0",
+  "release": "None",
+  "description": "Top-down game example using the Phaser HTML5 Game Framework.",
+  "author": "DanX",
+  "homepage": "http://danx.in",
+  "license": "MIT",
+  "licenseUrl": "http://www.opensource.org/licenses/mit-license.php",
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-connect": "~0.5.0"
+  }
+}
