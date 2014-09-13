@@ -11,11 +11,14 @@ window.onload = ->
 		preload: (game) ->
 
 		create: (game) ->
+			game.stage.backgroundColor = Phaser.Color.getRandomColor(0, 255, 255)
+
 			w = 40
 			h = 40
 			x = game.width / 2 - w / 2
 			y = game.height / 2 - h / 2
 			@player = new Phaser.Rectangle(x, y, w, h)
+			@player_color = Phaser.Color.getWebRGB(Phaser.Color.getRandomColor(0, 255, 255))
 
 			game.input.keyboard.addKeyCapture [
 				Phaser.Keyboard.LEFT
@@ -39,6 +42,6 @@ window.onload = ->
 			@player.y += dir.y
 
 		render: (game) ->
-			game.debug.geom(@player,'#0fffff')
+			game.debug.geom(@player, @player_color)
 
 	start()
