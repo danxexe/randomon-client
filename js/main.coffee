@@ -19,9 +19,6 @@ window.onload = ->
 			@tile_w = 40
 			@tile_h = 40
 
-			@grid_w = Math.ceil(@game.width / @tile_w)
-			@grid_h = Math.ceil(@game.height / @tile_h)
-
 			@game.input.keyboard.addKeyCapture [
 				Phaser.Keyboard.LEFT
 				Phaser.Keyboard.RIGHT
@@ -39,15 +36,21 @@ window.onload = ->
 		render: ->
 
 		_createDarkPatches: ->
+			tile_w = @tile_w * 2
+			tile_h = @tile_h * 2
+
+			grid_w = Math.ceil(@game.width / tile_w)
+			grid_h = Math.ceil(@game.height / tile_h)
+
 			@dark_patches = []
 			color = Phaser.Color.interpolateColorWithRGB(@game.stage.backgroundColor, 0, 0, 0, 100, 20)
-			dark_tex = new Phaser.BitmapData(@game, 'dark', @tile_w, @tile_h)
+			dark_tex = new Phaser.BitmapData(@game, 'dark', tile_w, tile_h)
 			dark_tex.fill.apply dark_tex, Phaser.Color.toArray(color)
 
-			for i in [0..((@grid_w * @grid_h) / 2)]
-				x = Math.floor(Math.random() * @grid_w)
-				y = Math.floor(Math.random() * @grid_h)
-				@dark_patches.push @game.add.sprite(x * @tile_w, y * @tile_h, dark_tex)
+			for i in [0..((grid_w * grid_h) / 2)]
+				x = Math.floor(Math.random() * grid_w)
+				y = Math.floor(Math.random() * grid_h)
+				@dark_patches.push @game.add.sprite(x * tile_w, y * tile_h, dark_tex)
 
 		_createPlayer: ->
 			x = @game.width / 2 - @tile_w / 2
