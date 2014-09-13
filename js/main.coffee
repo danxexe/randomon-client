@@ -52,6 +52,10 @@ window.onload = ->
 			@_movePlayer()
 			@_checkBounds()
 
+			if @game.input.keyboard.isDown(Phaser.Keyboard.R) && @game.input.keyboard.isDown(Phaser.Keyboard.CONTROL)
+				document.location.hash = ''
+				document.location.reload()
+
 		render: ->
 			@game.debug.cameraInfo(@game.camera, 32, 32);
 
