@@ -11,7 +11,7 @@ module.exports = function (grunt) {
                 options: {
                     keepalive: true,
                     hostname: '*',
-                    port: 8001,
+                    port: process.env.PORT || 8000,
                     middleware: function(connect, options, middlewares) {
                         var coffee = st.coffee({
                             root: __dirname + '/js',
@@ -31,6 +31,8 @@ module.exports = function (grunt) {
         }
 
     });
+
+    grunt.registerTask('heroku:production', []);
 
     grunt.registerTask('default', ['connect']);
 
