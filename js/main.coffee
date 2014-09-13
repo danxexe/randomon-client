@@ -58,7 +58,7 @@ window.onload = ->
 				document.location.reload()
 
 		render: ->
-			@game.debug.cameraInfo(@game.camera, 32, 32);
+			# @game.debug.cameraInfo(@game.camera, 32, 32);
 
 		_getOrGenerateWordId: ->
 			if document.location.hash == ''
