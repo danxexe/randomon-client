@@ -1,50 +1,81 @@
 window.onload = ->
 
+	Phaser.Color.toArray = (color) ->
+		[Phaser.Color.getRed(color), Phaser.Color.getGreen(color), Phaser.Color.getBlue(color)]
+
 	start = ->
 		w = document.body.offsetWidth
 		h = document.body.offsetHeight
 		game = new Phaser.Game(w, h, Phaser.AUTO, '', GameState)
 
 	GameState = 
-		speed: 4
+		preload: (@game) ->
 
-		preload: (game) ->
+		create: ->
+			@game.stage.backgroundColor = Phaser.Color.getRandomColor(0, 255, 255)
 
-		create: (game) ->
-			game.stage.backgroundColor = Phaser.Color.getRandomColor(0, 255, 255)
+			@speed = 4
 
-			w = 40
-			h = 40
-			x = game.width / 2 - w / 2
-			y = game.height / 2 - h / 2
-			@player = new Phaser.Rectangle(x, y, w, h)
-			@player_color = Phaser.Color.getWebRGB(Phaser.Color.getRandomColor(0, 255, 255))
+			@tile_w = 40
+			@tile_h = 40
 
-			game.input.keyboard.addKeyCapture [
+			@grid_w = Math.ceil(@game.width / @tile_w)
+			@grid_h = Math.ceil(@game.height / @tile_h)
+
+			@game.input.keyboard.addKeyCapture [
 				Phaser.Keyboard.LEFT
 				Phaser.Keyboard.RIGHT
 				Phaser.Keyboard.UP
 				Phaser.Keyboard.DOWN
 			]
 
-		update: (game) ->
+			@_createDarkPatches()
+			@_createPlayer()
+
+		update: ->
+			@_movePlayer()
+			@_checkBounds()
+
+		render: ->
+
+		_createDarkPatches: ->
+			@dark_patches = []
+			color = Phaser.Color.interpolateColorWithRGB(@game.stage.backgroundColor, 0, 0, 0, 100, 20)
+			dark_tex = new Phaser.BitmapData(@game, 'dark', @tile_w, @tile_h)
+			dark_tex.fill.apply dark_tex, Phaser.Color.toArray(color)
+
+			for i in [0..((@grid_w * @grid_h) / 2)]
+				x = Math.floor(Math.random() * @grid_w)
+				y = Math.floor(Math.random() * @grid_h)
+				@dark_patches.push @game.add.sprite(x * @tile_w, y * @tile_h, dark_tex)
+
+		_createPlayer: ->
+			x = @game.width / 2 - @tile_w / 2
+			y = @game.height / 2 - @tile_h / 2
+			player_tex = new Phaser.BitmapData(@game, 'player', @tile_w, @tile_h)
+			color = Phaser.Color.getRandomColor(0, 255, 255)
+			player_tex.fill.apply player_tex, Phaser.Color.toArray(color)
+			@player = @game.add.sprite(x, y, player_tex)
+
+		_movePlayer: ->
 			dir = { x: 0, y: 0 }
-			if game.input.keyboard.isDown(Phaser.Keyboard.LEFT)
+			if @game.input.keyboard.isDown(Phaser.Keyboard.LEFT)
 				dir.x -= @speed
-			if game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)
+			if @game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)
 				dir.x += @speed
-			if game.input.keyboard.isDown(Phaser.Keyboard.UP)
+			if @game.input.keyboard.isDown(Phaser.Keyboard.UP)
 				dir.y -= @speed
-			if game.input.keyboard.isDown(Phaser.Keyboard.DOWN)
+			if @game.input.keyboard.isDown(Phaser.Keyboard.DOWN)
 				dir.y += @speed
 
 			@player.x += dir.x
 			@player.y += dir.y
 
+		_checkBounds: ->
 			left = 0
-			right = game.width - @player.width
+			right = @game.width - @player.width
 			top = 0
-			bottom = game.height - @player.height
+			bottom = @game.height - @player.height
 
 			if @player.x < left
 				@player.x = left
@@ -54,8 +85,5 @@ window.onload = ->
 				@player.y = top
 			else if @player.y >= bottom
 				@player.y = bottom
-
-		render: (game) ->
-			game.debug.geom(@player, @player_color)
 
 	start()

@@ -19,7 +19,7 @@ module.exports = function (grunt) {
                             // cache: true,
                             // maxage: 3600,
                             options: {
-                                minify: true
+                                // minify: true
                             }
                         });
 
