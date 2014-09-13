@@ -1,33 +1,28 @@
 window.onload = ->
 
 	Phaser.RandomDataGenerator::color = ->
-        r = @between(0, 255)
-        g = @between(0, 255)
-        b = @between(0, 255)
+		r = @between(0, 255)
+		g = @between(0, 255)
+		b = @between(0, 255)
 
-        Phaser.Color.getColor32(1, r, g, b)
+		Phaser.Color.getColor32(1, r, g, b)
 
 	Phaser.Color.toArray = (color) ->
 		[Phaser.Color.getRed(color), Phaser.Color.getGreen(color), Phaser.Color.getBlue(color)]
+
+	socket = new Phoenix.Socket("ws://localhost:4000/ws")
 
 	start = ->
 		w = document.body.offsetWidth
 		h = document.body.offsetHeight
 		game = new Phaser.Game(w, h, Phaser.AUTO, '', GameState)
 		window.game = game
+		window.state = GameState
 
 	GameState = 
 		preload: (@game) ->
-			@uuid = if document.location.hash == ''
-				document.location.hash = @game.rnd.uuid()
-			else
-				document.location.hash.replace /^#/, ''
-
-			@game.rnd.sow(@uuid)
 
 		create: ->
-			@game.stage.backgroundColor = @game.rnd.color()
-
 			@speed = 4
 
 			@tile_w = 32
@@ -43,10 +38,15 @@ window.onload = ->
 				Phaser.Keyboard.DOWN
 			]
 
-			@_createPlayer()
-			@_createDarkPatches()
+			@player = @_createPlayer()
+			@_createWorld()
+
 			@player.bringToTop()
 			@game.camera.follow(@player)
+
+			@others = {}
+
+			@_connectToServer()
 
 		update: ->
 			@_movePlayer()
@@ -59,7 +59,18 @@ window.onload = ->
 		render: ->
 			@game.debug.cameraInfo(@game.camera, 32, 32);
 
-		_createDarkPatches: ->
+		_getOrGenerateWordId: ->
+			if document.location.hash == ''
+				document.location.hash = @game.rnd.uuid()
+			else
+				document.location.hash.replace /^#/, ''
+
+		_createWorld: ->
+			@world_id = @_getOrGenerateWordId()
+			@game.rnd.sow(@world_id)
+
+			@game.stage.backgroundColor = @game.rnd.color()
+
 			scale = 2
 			tile_w = @tile_w * scale
 			tile_h = @tile_h * scale
@@ -76,13 +87,21 @@ window.onload = ->
 				y = @game.rnd.between(0, map_h - 1)
 				@dark_patches.push @game.add.sprite(x * tile_w, y * tile_h, dark_tex)
 
-		_createPlayer: ->
+		_generatePlayerId: ->
+			@game.rnd.uuid()
+
+		_createPlayer: (id = null) ->
+			player_id = if id? then id else @_generatePlayerId()
+			@game.rnd.sow(player_id)
+
 			x = @game.world.centerX - @tile_w / 2
 			y = @game.world.centerY - @tile_h / 2
-			player_tex = new Phaser.BitmapData(@game, 'player', @tile_w, @tile_h)
+			player_tex = new Phaser.BitmapData(@game, null, @tile_w, @tile_h)
 			color = @game.rnd.color()
 			player_tex.fill.apply player_tex, Phaser.Color.toArray(color)
-			@player = @game.add.sprite(x, y, player_tex)
+			player = @game.add.sprite(x, y, player_tex)
+			player.id = player_id
+			player
 
 		_movePlayer: ->
 			dir = { x: 0, y: 0 }
@@ -98,6 +117,9 @@ window.onload = ->
 			@player.x += dir.x
 			@player.y += dir.y
 
+			if @player.sync && (dir.x != 0 || dir.y != 0)
+				@player.sync(@player)
+
 		_checkBounds: ->
 			left = 0
 			right = @game.world.width - @player.width
@@ -112,5 +134,40 @@ window.onload = ->
 				@player.y = top
 			else if @player.y >= bottom
 				@player.y = bottom
+
+		_connectToServer: ->
+			player = @player
+			others = @others
+			gameState = @
+
+			socket.join "world", @world_id, {player: player.id}, (chan) ->
+
+				chan.on "join", (message) ->
+					player.sync = (player) ->
+						chan.send("sync", player: player.id, x: player.x, y: player.y)
+
+				chan.on "player:entered", (msg) ->
+					if (player_id = msg.player)?
+						new_player = gameState._createPlayer(player_id)
+						others[player_id] = new_player
+						player.bringToTop()
+
+				chan.on "player:left", (msg) ->
+					player_id = msg.player
+					if (other_player = others[player_id])?
+						delete others[player_id]
+						other_player.destroy()
+
+				chan.on "player:sync", (msg) ->
+					player_id = msg.player
+					if player_id != player.id && !(other_player = others[player_id])?
+						new_player = gameState._createPlayer(player_id)
+						other_player = others[player_id] = new_player
+						player.bringToTop()
+
+					if other_player?
+						other_player.x = msg.x
+						other_player.y = msg.y
+
 
 	start()
