@@ -30,8 +30,11 @@ window.onload = ->
 
 			@speed = 4
 
-			@tile_w = 40
-			@tile_h = 40
+			@tile_w = 32
+			@tile_h = 32
+			@map_w = 64
+			@map_h = 64
+			@game.world.setBounds(0, 0, @map_w * @tile_w, @map_h * @tile_h);
 
 			@game.input.keyboard.addKeyCapture [
 				Phaser.Keyboard.LEFT
@@ -43,35 +46,35 @@ window.onload = ->
 			@_createPlayer()
 			@_createDarkPatches()
 			@player.bringToTop()
+			@game.camera.follow(@player)
 
 		update: ->
 			@_movePlayer()
 			@_checkBounds()
 
 		render: ->
+			@game.debug.cameraInfo(@game.camera, 32, 32);
 
 		_createDarkPatches: ->
-			tile_w = @tile_w * 2
-			tile_h = @tile_h * 2
-
-			# grid_w = Math.ceil(@game.width / tile_w)
-			# grid_h = Math.ceil(@game.height / tile_h)
-			grid_w = 32
-			grid_h = 32
+			scale = 2
+			tile_w = @tile_w * scale
+			tile_h = @tile_h * scale
+			map_w = @map_w / scale
+			map_h = @map_h / scale
 
 			@dark_patches = []
 			color = Phaser.Color.interpolateColorWithRGB(@game.stage.backgroundColor, 0, 0, 0, 100, 20)
 			dark_tex = new Phaser.BitmapData(@game, 'dark', tile_w, tile_h)
 			dark_tex.fill.apply dark_tex, Phaser.Color.toArray(color)
 
-			for i in [0..((grid_w * grid_h) / 2)]
-				x = @game.rnd.between(0, grid_w - 1)
-				y = @game.rnd.between(0, grid_h - 1)
+			for i in [0..((map_w * map_h) / 2)]
+				x = @game.rnd.between(0, map_w - 1)
+				y = @game.rnd.between(0, map_h - 1)
 				@dark_patches.push @game.add.sprite(x * tile_w, y * tile_h, dark_tex)
 
 		_createPlayer: ->
-			x = @game.width / 2 - @tile_w / 2
-			y = @game.height / 2 - @tile_h / 2
+			x = @game.world.centerX - @tile_w / 2
+			y = @game.world.centerY - @tile_h / 2
 			player_tex = new Phaser.BitmapData(@game, 'player', @tile_w, @tile_h)
 			color = @game.rnd.color()
 			player_tex.fill.apply player_tex, Phaser.Color.toArray(color)
@@ -93,9 +96,9 @@ window.onload = ->
 
 		_checkBounds: ->
 			left = 0
-			right = @game.width - @player.width
+			right = @game.world.width - @player.width
 			top = 0
-			bottom = @game.height - @player.height
+			bottom = @game.world.height - @player.height
 
 			if @player.x < left
 				@player.x = left
