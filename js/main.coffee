@@ -41,6 +41,20 @@ window.onload = ->
 			@player.x += dir.x
 			@player.y += dir.y
 
+			left = 0
+			right = game.width - @player.width
+			top = 0
+			bottom = game.height - @player.height
+
+			if @player.x < left
+				@player.x = left
+			else if @player.x >= right
+				@player.x = right
+			if @player.y < top
+				@player.y = top
+			else if @player.y >= bottom
+				@player.y = bottom
+
 		render: (game) ->
 			game.debug.geom(@player, @player_color)
 
