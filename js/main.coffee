@@ -40,6 +40,7 @@ window.onload = ->
 			]
 
 			@player = @_createPlayer()
+			game.time.events.loop(Phaser.Timer.SECOND * 2, (-> @sync() if @sync), @player)
 			@_createWorld()
 
 			@player.bringToTop()
