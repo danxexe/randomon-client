@@ -119,7 +119,7 @@ window.onload = ->
 			@player.y += dir.y
 
 			if @player.sync && (dir.x != 0 || dir.y != 0)
-				@player.sync(@player)
+				@player.sync()
 
 		_checkBounds: ->
 			left = 0
@@ -144,8 +144,8 @@ window.onload = ->
 			socket.join "world", @world_id, {player: player.id}, (chan) ->
 
 				chan.on "join", (message) ->
-					player.sync = (player) ->
-						chan.send("sync", player: player.id, x: player.x, y: player.y)
+					player.sync = ->
+						chan.send("sync", player: @id, x: @x, y: @y)
 
 				chan.on "player:entered", (msg) ->
 					if (player_id = msg.player)?
@@ -161,14 +161,13 @@ window.onload = ->
 
 				chan.on "player:sync", (msg) ->
 					player_id = msg.player
-					if player_id != player.id && !(other_player = others[player_id])?
+					if !(other_player = others[player_id])?
 						new_player = gameState._createPlayer(player_id)
 						other_player = others[player_id] = new_player
 						player.bringToTop()
 
-					if other_player?
-						other_player.x = msg.x
-						other_player.y = msg.y
+					other_player.x = msg.x
+					other_player.y = msg.y
 
 
 	start()
