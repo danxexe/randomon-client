@@ -10,7 +10,7 @@ window.onload = ->
 	Phaser.Color.toArray = (color) ->
 		[Phaser.Color.getRed(color), Phaser.Color.getGreen(color), Phaser.Color.getBlue(color)]
 
-	server_url = if location.host.match(/^localhost/) then "ws://localhost:4000/ws" else "ws://randomon-server.herokuapp.com/ws"
+	server_url = env.GAME_SERVER_URL || "ws://localhost:4000/ws"
 	socket = new Phoenix.Socket(server_url)
 
 	start = ->
