@@ -13,12 +13,12 @@ window.onload = ->
 		create: ->
 			@game.stage.backgroundColor = 0xffffff
 
-			data = new CreatureData(@game, 4, 8)
-			@creature = new CreatureBitmap(@game, x: 100, y: 100, color: 0x000000, grid: true, data: data.data, w: (data.w * 2 - 1), h: data.h)
+			@creature = new CreatureBitmap(@game, x: 100, y: 100, color: 0x000000, grid: true, w: 7, h: 8)
 			window.c = @creature
 
 			@sprite = @game.add.sprite(@creature.x, @creature.y, @creature.bitmap)
 
+			gui.add @creature, 'seed'
 			gui.add @creature, 'grid'
 			gui.addColor @creature, 'color'
 
@@ -42,7 +42,11 @@ window.onload = ->
 			@scaled_h = @h * @scale
 			@_color = options.color
 			@_grid = options.grid
-			@data = options.data ?= []
+			@_seed = options.seed ?= @game.rnd.uuid()
+
+			@game.rnd.sow(@seed)
+			@data_w = Math.ceil(@w / 2)
+			@data = options.data ?= new CreatureData(@game, @data_w, @h).data
 
 			@bitmap = new Phaser.BitmapData(@game, null, @scaled_w, @scaled_h)
 
@@ -58,6 +62,15 @@ window.onload = ->
 				get: -> @_color
 				set: (val) ->
 					@_color = val
+					@render()
+			seed:
+				get: -> @_seed
+				set: (val) ->
+					@_seed = val
+					@game.rnd.sow(@seed)
+					@data = new CreatureData(@game, @data_w, @h).data
+					@bitmap.clear()
+					@bitmap.update(0, 0, @scaled_w, @scaled_h)
 					@render()
 
 		render: ->
