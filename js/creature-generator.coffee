@@ -1,5 +1,7 @@
 window.onload = ->
 
+	gui = new dat.GUI()
+
 	start = ->
 		w = document.body.offsetWidth
 		h = document.body.offsetHeight
@@ -16,6 +18,9 @@ window.onload = ->
 			window.c = @creature
 
 			@sprite = @game.add.sprite(@creature.x, @creature.y, @creature.bitmap)
+
+			gui.add @creature, 'grid'
+			gui.addColor @creature, 'color'
 
 	class CreatureData
 		constructor: (@game, @w, @h) ->
@@ -35,14 +40,30 @@ window.onload = ->
 			@scale = @options.scale ?= 16
 			@scaled_w = @w * @scale
 			@scaled_h = @h * @scale
-			@color = options.color
-			@grid = options.grid
+			@_color = options.color
+			@_grid = options.grid
 			@data = options.data ?= []
 
 			@bitmap = new Phaser.BitmapData(@game, null, @scaled_w, @scaled_h)
-			@drawData()
 
-			# @drawGrid() if @grid?
+			@render()
+
+		Object.defineProperties @prototype,
+			grid:
+				get: -> @_grid
+				set: (val) ->
+					@_grid = val
+					@render()
+			color:
+				get: -> @_color
+				set: (val) ->
+					@_color = val
+					@render()
+
+		render: ->
+			@bitmap.clear()
+			@drawData()
+			@drawGrid() if @grid
 
 		drawData: ->
 			@bitmap.smoothed = false
@@ -52,7 +73,7 @@ window.onload = ->
 				continue unless px
 				x = i % @w
 				y = ~~(i / @w)
-				
+
 				@bitmap.setPixel(x, y, color.r, color.g, color.b, false)
 
 			@bitmap.ctx.putImageData(@bitmap.imageData, 0, 0)
