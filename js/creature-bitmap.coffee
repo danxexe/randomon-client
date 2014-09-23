@@ -43,7 +43,7 @@ class CreatureBitmap
 			get: -> @_seed
 			set: (val) ->
 				@_seed = val
-				@game.rnd.sow(@seed)
+				@game.rnd.sow(@_seed)
 				@data = new CreatureData(@game, @data_w, @h).data
 				@bitmap.clear()
 				@bitmap.update(0, 0, @scaled_w, @scaled_h)
