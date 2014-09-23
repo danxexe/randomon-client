@@ -1,15 +1,5 @@
 window.onload = ->
 
-	Phaser.RandomDataGenerator::color = ->
-		r = @between(0, 255)
-		g = @between(0, 255)
-		b = @between(0, 255)
-
-		Phaser.Color.getColor32(1, r, g, b)
-
-	Phaser.Color.toArray = (color) ->
-		[Phaser.Color.getRed(color), Phaser.Color.getGreen(color), Phaser.Color.getBlue(color)]
-
 	server_url = env.GAME_SERVER_URL || "ws://localhost:4000/ws"
 	socket = new Phoenix.Socket(server_url)
 
