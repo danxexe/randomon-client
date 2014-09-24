@@ -50,9 +50,9 @@ class CreatureBitmap
 				@render()
 
 	render: ->
-		@bitmap.clear()
 		@drawData()
 		@drawGrid() if @grid
+		@bitmap.render()
 
 	drawData: ->
 		@bitmap.smoothed = false

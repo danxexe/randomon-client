@@ -17,21 +17,20 @@ window.onload = ->
 			window.c = @creature
 
 			points = []
-			segment_h = @creature.scaled_h / 10
-			for i in [0...10]
-				points.push(new Phaser.Point(0, i * segment_h))
+			num_segments = 10
+			segment_h = @creature.scaled_h / num_segments
+			for i in [0...num_segments]
+				points.push(new PIXI.Point(i * segment_h, 0))
 
 			# @sprite = @game.add.sprite(@creature.x, @creature.y, @creature.bitmap)
 			@sprite = game.add.rope(@creature.x, @creature.y, @creature.bitmap, null, points)
 			window.s = @sprite
 
-			@sprite.angle = -90 if @sprite.type == Phaser.ROPE
-
 			count = 0
 			@sprite.updateAnimation = ->
-				count += 0.1
+				count += 2
 				for i in  [0...points.length]
-					points[i].x = Math.sin(i * 0.5  + count) * 2
+					points[i].y = Math.sin((count+(i*3)) * 0.05) * 10;
 
 			controller = gui.add @creature, 'seed'
 			gui.add @creature, 'grid'
