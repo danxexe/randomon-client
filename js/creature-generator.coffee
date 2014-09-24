@@ -18,9 +18,9 @@ window.onload = ->
 
 			points = []
 			num_segments = 10
-			segment_h = @creature.scaled_h / num_segments
+			segment_size = @creature.scaled_w / num_segments
 			for i in [0...num_segments]
-				points.push(new PIXI.Point(i * segment_h, 0))
+				points.push(new PIXI.Point(i * segment_size, 0))
 
 			# @sprite = @game.add.sprite(@creature.x, @creature.y, @creature.bitmap)
 			@sprite = game.add.rope(@creature.x, @creature.y, @creature.bitmap, null, points)
