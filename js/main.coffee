@@ -4,13 +4,42 @@ window.onload = ->
 		w = document.body.offsetWidth
 		h = document.body.offsetHeight
 		game = new Phaser.Game(w, h, Phaser.AUTO, '', GameState)
-		window.game = game
-		window.state = GameState
 
-	GameState = 
-		preload: (@game) ->
+		game.state.add 'game', GameState, true
+		game.state.add 'battle', BattleState
+
+		window.s = GameState
+
+	BattleState = 
+		_setupGUI: ->
+			game = @game
+			gui = @gui = new dat.GUI()
+			@gui_controller =
+				run: ->
+					gui.destroy()
+					game.state.start 'game'
+
+			@gui.add(@gui_controller, 'run').name('Run!')
 
 		create: ->
+			@_setupGUI()
+
+	GameState = 
+		_setupGUI: ->
+			game = @game
+			gui = @gui = new dat.GUI()
+			@gui_controller =
+				triggerBattle: ->
+					gui.destroy()
+					game.state.start 'battle'
+
+			@gui.add(@gui_controller, 'triggerBattle').name('Battle!')
+
+		preload: ->
+
+		create: ->
+			@_setupGUI()
+
 			@offline = document.location.search.match(/offline=true/)?
 			@light_bg = document.location.search.match(/light_bg=true/)?
 
@@ -32,7 +61,12 @@ window.onload = ->
 				Phaser.Keyboard.DOWN
 			]
 
-			@player = @_createPlayer()
+			@player = @_createPlayer(@world.player?.id)
+
+			if @world.player?
+				@player.x = @world.player.x
+				@player.y = @world.player.y
+
 			game.time.events.loop(Phaser.Timer.SECOND * 2, (-> @sync() if @sync), @player) unless @offline
 			@_createWorld()
 
@@ -53,6 +87,12 @@ window.onload = ->
 
 		render: ->
 			# @game.debug.cameraInfo(@game.camera, 32, 32);
+
+		shutdown: ->
+			@world.player =
+				id: @player.id
+				x: @player.x
+				y: @player.y
 
 		_getOrGenerateWordId: ->
 			if document.location.hash == ''
