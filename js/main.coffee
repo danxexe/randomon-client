@@ -24,6 +24,13 @@ window.onload = ->
 		create: ->
 			@_setupGUI()
 
+			@world.setBounds(0, 0, @camera.width, @camera.height)
+
+			@game.rnd.sow([Math.random()])
+			uuid = @game.rnd.pick(@world.encounters)
+			@enemy = new Creature(@game, x: @world.centerX + 200, y: 100, color: 0x000000, w: 7, h: 8, seed: uuid)
+			@enemy.addTo @game
+
 	GameState = 
 		_setupGUI: ->
 			game = @game
@@ -74,6 +81,13 @@ window.onload = ->
 			@game.camera.follow(@player)
 
 			@others = {}
+
+			@world.encounters = @encounters = [
+				@game.rnd.uuid()
+				@game.rnd.uuid()
+				@game.rnd.uuid()
+				@game.rnd.uuid()
+			]
 
 			@_connectToServer() unless @offline
 
