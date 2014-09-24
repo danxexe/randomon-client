@@ -1,8 +1,5 @@
 window.onload = ->
 
-	server_url = env.GAME_SERVER_URL || "ws://localhost:4000/ws"
-	socket = new Phoenix.Socket(server_url)
-
 	start = ->
 		w = document.body.offsetWidth
 		h = document.body.offsetHeight
@@ -14,13 +11,19 @@ window.onload = ->
 		preload: (@game) ->
 
 		create: ->
+			@offline = document.location.search.match(/offline=true/)?
+			@light_bg = document.location.search.match(/light_bg=true/)?
+
+			@server_url = window.env.GAME_SERVER_URL || "ws://localhost:4000/ws"
+			@socket = new Phoenix.Socket(@server_url) unless @offline
+
 			@speed = 4
 
 			@tile_w = 32
 			@tile_h = 32
 			@map_w = 64
 			@map_h = 64
-			@game.world.setBounds(0, 0, @map_w * @tile_w, @map_h * @tile_h);
+			@game.world.setBounds(0, 0, @map_w * @tile_w, @map_h * @tile_h)
 
 			@game.input.keyboard.addKeyCapture [
 				Phaser.Keyboard.LEFT
@@ -30,7 +33,7 @@ window.onload = ->
 			]
 
 			@player = @_createPlayer()
-			game.time.events.loop(Phaser.Timer.SECOND * 2, (-> @sync() if @sync), @player)
+			game.time.events.loop(Phaser.Timer.SECOND * 2, (-> @sync() if @sync), @player) unless @offline
 			@_createWorld()
 
 			@player.bringToTop()
@@ -38,7 +41,7 @@ window.onload = ->
 
 			@others = {}
 
-			@_connectToServer()
+			@_connectToServer() unless @offline
 
 		update: ->
 			@_movePlayer()
@@ -61,7 +64,10 @@ window.onload = ->
 			@world_id = @_getOrGenerateWordId()
 			@game.rnd.sow(@world_id)
 
-			@game.stage.backgroundColor = @game.rnd.color()
+			if @light_bg
+				@game.stage.backgroundColor = 0xffffff
+			else
+				@game.stage.backgroundColor = @game.rnd.color()
 
 			scale = 2
 			tile_w = @tile_w * scale
@@ -132,7 +138,7 @@ window.onload = ->
 			others = @others
 			gameState = @
 
-			socket.join "world", @world_id, {player: player.id}, (chan) ->
+			@socket.join "world", @world_id, {player: player.id}, (chan) ->
 
 				chan.on "join", (message) ->
 					player.sync = ->
