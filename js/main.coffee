@@ -13,14 +13,26 @@ window.onload = ->
 
 	GameState = 
 		_setupGUI: ->
-			game = @game
-			gui = @gui = new dat.GUI()
+			@gui = new dat.GUI()
+			state = @
 			@gui_controller =
 				triggerBattle: ->
-					gui.destroy()
-					game.state.start 'battle'
+					state._battle()
 
 			@gui.add(@gui_controller, 'triggerBattle').name('Battle!')
+
+		_battle: ->
+			@disable_input = true
+			@group.x = @group.pivot.x = @player.x + @player.width / 2
+			@group.y = @group.pivot.y = @player.y + @player.height / 2
+			@camera.focusOnXY @player.x, @player.y
+
+			@game.add.tween(@group).to({ rotation: 3 }, 1000, Phaser.Easing.Linear.None, true)
+			@game.add.tween(@group).to({ alpha: 0 }, 1000, Phaser.Easing.Linear.None, true)
+			@game.add.tween(@group.scale).to({ x: 80, y: 80 }, 1000, Phaser.Easing.Linear.None, true).onComplete.add ->
+				@gui.destroy()
+				@game.state.start 'battle'
+			, @
 
 		preload: ->
 
@@ -48,6 +60,9 @@ window.onload = ->
 				Phaser.Keyboard.DOWN
 			]
 
+			@group = @game.add.group()
+			@disable_input = false
+
 			@player = @_createPlayer(@world.player?.id)
 
 			if @world.player?
@@ -72,7 +87,7 @@ window.onload = ->
 			@_connectToServer() unless @offline
 
 		update: ->
-			@_movePlayer()
+			@_movePlayer() unless @disable_input
 			@_checkBounds()
 
 			if @game.input.keyboard.isDown(Phaser.Keyboard.R) && @game.input.keyboard.isDown(Phaser.Keyboard.CONTROL)
@@ -117,7 +132,9 @@ window.onload = ->
 			for i in [0..((map_w * map_h) / 2)]
 				x = @game.rnd.between(0, map_w - 1)
 				y = @game.rnd.between(0, map_h - 1)
-				@dark_patches.push @game.add.sprite(x * tile_w, y * tile_h, dark_tex)
+				tile = @game.add.sprite(x * tile_w, y * tile_h, dark_tex)
+				@group.add tile
+				@dark_patches.push tile
 
 		_generatePlayerId: ->
 			@game.rnd.uuid()
@@ -131,7 +148,7 @@ window.onload = ->
 			player_tex = new Phaser.BitmapData(@game, null, @tile_w, @tile_h)
 			color = @game.rnd.color()
 			player_tex.fill.apply player_tex, Phaser.Color.toArray(color)
-			player = @game.add.sprite(x, y, player_tex)
+			player = @group.add @game.add.sprite(x, y, player_tex)
 			player.id = player_id
 			player
 
