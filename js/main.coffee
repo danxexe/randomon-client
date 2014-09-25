@@ -69,7 +69,7 @@ window.onload = ->
 				@player.x = @world.player.x
 				@player.y = @world.player.y
 
-			game.time.events.loop(Phaser.Timer.SECOND * 2, (-> @sync() if @sync), @player) unless @offline
+			@game.time.events.loop(Phaser.Timer.SECOND * 2, (-> @sync() if @sync), @player) unless @offline
 			@_createWorld()
 
 			@player.bringToTop()
