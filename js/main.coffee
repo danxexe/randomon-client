@@ -124,17 +124,20 @@ window.onload = ->
 			map_w = @map_w / scale
 			map_h = @map_h / scale
 
-			@dark_patches = []
 			color = Phaser.Color.interpolateColorWithRGB(@game.stage.backgroundColor, 0, 0, 0, 100, 20)
-			dark_tex = new Phaser.BitmapData(@game, 'dark', tile_w, tile_h)
-			dark_tex.fill.apply dark_tex, Phaser.Color.toArray(color)
+			map_tiles = new Phaser.BitmapData(@game, 'map-tiles', tile_w * 2, tile_h)
+			@game.cache.addBitmapData('map-tiles', map_tiles)
+			map_tiles.rect tile_w, 0, tile_w, tile_h, Phaser.Color.getWebRGB(color)
+
+			@map = @game.add.tilemap(null, tile_w, tile_h, map_w, map_h)
+			@map.addTilesetBitmapData map_tiles, 0, tile_w, tile_h
+
+			@grass_layer = @map.createBlankLayer 'grass', map_w, map_h, tile_w, tile_h, @group
 
 			for i in [0..((map_w * map_h) / 2)]
 				x = @game.rnd.between(0, map_w - 1)
 				y = @game.rnd.between(0, map_h - 1)
-				tile = @game.add.sprite(x * tile_w, y * tile_h, dark_tex)
-				@group.add tile
-				@dark_patches.push tile
+				tile = @map.putTile(1, x, y, 'grass')
 
 		_generatePlayerId: ->
 			@game.rnd.uuid()

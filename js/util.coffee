@@ -41,3 +41,14 @@ if CanvasRenderingContext2D?
 			@moveTo(0, scaled_y)
 			@lineTo(scaled_x, scaled_y)
 			@stroke()
+
+if Phaser.Tilemap?
+	Phaser.Tilemap::addTilesetBitmapData =  (bitmapdata, gid, tileWidth, tileHeight) ->
+		tileset = new Phaser.Tileset(null, gid, tileWidth, tileHeight, 0, 0, {})
+		tileset.setImage bitmapdata.canvas
+		@tilesets.push tileset
+
+		i = @tilesets.length - 1
+
+		for t in [gid...(gid + tileset.total)] by 1
+			@tiles[t] = [0, 0, i]
