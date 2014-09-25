@@ -43,7 +43,7 @@ window.onload = ->
 			@light_bg = document.location.search.match(/light_bg=true/)?
 
 			@server_url = window.env.GAME_SERVER_URL || "ws://localhost:4000/ws"
-			@socket = new Phoenix.Socket(@server_url) unless @offline
+			@socket = new Phoenix.Socket(@server_url) unless @offline || @socket
 
 			@speed = 4
 
@@ -199,7 +199,7 @@ window.onload = ->
 						chan.send("sync", player: @id, x: @x, y: @y)
 
 				chan.on "player:entered", (msg) ->
-					if (player_id = msg.player)?
+					if (player_id = msg.player)? && !others[player_id]?
 						new_player = gameState._createPlayer(player_id)
 						others[player_id] = new_player
 						player.bringToTop()
