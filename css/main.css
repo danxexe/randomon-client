@@ -246,6 +246,21 @@ textarea {
 }
 
 /* ==========================================================================
+   Fonts
+   ========================================================================== */
+
+@font-face {
+    font-family: 'Minecraftia';
+    src: url('../fonts/Minecraftia-Regular.ttf') format('truetype');
+}
+.preload-font-minecraftia:before {
+    content: "";
+    font-family: 'Minecraftia';
+    position: absolute;
+    top: -1000px;
+}
+
+/* ==========================================================================
    Custom styles
    ========================================================================== */
 

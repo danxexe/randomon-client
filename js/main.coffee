@@ -10,26 +10,6 @@ window.onload = ->
 
 		window.s = GameState
 
-	BattleState = 
-		_setupGUI: ->
-			game = @game
-			gui = @gui = new dat.GUI()
-			@gui_controller =
-				run: ->
-					gui.destroy()
-					game.state.start 'game'
-
-			@gui.add(@gui_controller, 'run').name('Run!')
-
-		create: ->
-			@_setupGUI()
-
-			@world.setBounds(0, 0, @camera.width, @camera.height)
-
-			@game.rnd.sow([Math.random()])
-			uuid = @game.rnd.pick(@world.encounters)
-			@enemy = new Creature(@game, x: @world.centerX + 200, y: 100, color: 0x000000, w: 7, h: 8, seed: uuid)
-			@enemy.addTo @game
 
 	GameState = 
 		_setupGUI: ->
