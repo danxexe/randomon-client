@@ -45,6 +45,8 @@ window.onload = ->
 			@server_url = window.env.GAME_SERVER_URL || "ws://localhost:4000/ws"
 			@socket = new Phoenix.Socket(@server_url) unless @offline || @socket
 
+			@game.physics.startSystem(Phaser.Physics.ARCADE)
+
 			@speed = 4
 
 			@tile_w = 32
@@ -64,6 +66,7 @@ window.onload = ->
 			@disable_input = false
 
 			@player = @_createPlayer(@world.player?.id)
+			@game.physics.enable(@player)
 
 			if @world.player?
 				@player.x = @world.player.x
@@ -87,6 +90,10 @@ window.onload = ->
 			@_connectToServer() unless @offline
 
 		update: ->
+			@grass_layer.debug = false
+			@game.physics.arcade.overlap @player, @grass_layer, =>
+				@grass_layer.debug = true
+
 			@_movePlayer() unless @disable_input
 			@_checkBounds()
 
@@ -138,6 +145,8 @@ window.onload = ->
 				x = @game.rnd.between(0, map_w - 1)
 				y = @game.rnd.between(0, map_h - 1)
 				tile = @map.putTile(1, x, y, 'grass')
+
+			@map.setCollision 1, true, 'grass'
 
 		_generatePlayerId: ->
 			@game.rnd.uuid()
