@@ -90,9 +90,14 @@ window.onload = ->
 			@_connectToServer() unless @offline
 
 		update: ->
-			@grass_layer.debug = false
-			@game.physics.arcade.overlap @player, @grass_layer, =>
-				@grass_layer.debug = true
+			# Cleanup old colliding tiles
+			for tile in @colliding_tiles
+				@map.putTile(1, tile.x, tile.y, 'grass')
+			@colliding_tiles = []
+
+			# Update new colliding tiles
+			@game.physics.arcade.overlap @player, @grass_layer, (_, tile) =>
+				@colliding_tiles.push @map.putTile(2, tile.x, tile.y, 'grass')
 
 			@_movePlayer() unless @disable_input
 			@_checkBounds()
@@ -131,10 +136,18 @@ window.onload = ->
 			map_w = @map_w / scale
 			map_h = @map_h / scale
 
-			color = Phaser.Color.interpolateColorWithRGB(@game.stage.backgroundColor, 0, 0, 0, 100, 20)
-			map_tiles = new Phaser.BitmapData(@game, 'map-tiles', tile_w * 2, tile_h)
+			# Create tiles
+
+			colors = []
+			colors.push Phaser.Color.interpolateColorWithRGB(@game.stage.backgroundColor, 0, 0, 0, 100, 20)
+			colors.push Phaser.Color.interpolateColorWithRGB(colors[0], 0, 0, 0, 100, 10)
+
+			map_tiles = new Phaser.BitmapData(@game, 'map-tiles', tile_w * (colors.length + 1), tile_h)
 			@game.cache.addBitmapData('map-tiles', map_tiles)
-			map_tiles.rect tile_w, 0, tile_w, tile_h, Phaser.Color.getWebRGB(color)
+			for color, i in colors
+				map_tiles.rect tile_w * (i + 1), 0, tile_w, tile_h, Phaser.Color.getWebRGB(color)
+
+			# Create map
 
 			@map = @game.add.tilemap(null, tile_w, tile_h, map_w, map_h)
 			@map.addTilesetBitmapData map_tiles, 0, tile_w, tile_h
@@ -146,7 +159,8 @@ window.onload = ->
 				y = @game.rnd.between(0, map_h - 1)
 				tile = @map.putTile(1, x, y, 'grass')
 
-			@map.setCollision 1, true, 'grass'
+			@map.setCollision [1, 2], true, 'grass'
+			@colliding_tiles = []
 
 		_generatePlayerId: ->
 			@game.rnd.uuid()
