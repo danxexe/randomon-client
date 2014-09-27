@@ -56101,17 +56101,17 @@ Phaser.Physics.Arcade.prototype = {
             return false;
         }
 
+        if (overlapOnly && tile.collides && tile.intersects(body.position.x, body.position.y, body.right, body.bottom))
+        {
+            //  Return early if we only want to check for overlap
+            return true;
+        }
+
         //  We don't need to go any further if this tile doesn't actually separate
         if (!tile.faceLeft && !tile.faceRight && !tile.faceTop && !tile.faceBottom)
         {
             //   This could happen if the tile was meant to be collided with re: a callback, but otherwise isn't needed for separation
             return false;
-        }
-
-        if (overlapOnly && tile.intersects(body.position.x, body.position.y, body.right, body.bottom))
-        {
-            //  Return early if we only want to check for overlap
-            return true;
         }
 
         var ox = 0;
