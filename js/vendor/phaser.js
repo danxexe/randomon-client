@@ -55435,7 +55435,7 @@ Phaser.Physics.Arcade.prototype = {
                 }
                 else if (object2.type == Phaser.TILEMAPLAYER)
                 {
-                    this.collideSpriteVsTilemapLayer(object1, object2, collideCallback, processCallback, callbackContext);
+                    this.collideSpriteVsTilemapLayer(object1, object2, collideCallback, processCallback, callbackContext, overlapOnly);
                 }
             }
             //  GROUPS
@@ -55459,7 +55459,7 @@ Phaser.Physics.Arcade.prototype = {
             {
                 if (object2.type == Phaser.SPRITE || object2.type == Phaser.TILESPRITE)
                 {
-                    this.collideSpriteVsTilemapLayer(object2, object1, collideCallback, processCallback, callbackContext);
+                    this.collideSpriteVsTilemapLayer(object2, object1, collideCallback, processCallback, callbackContext, overlapOnly);
                 }
                 else if (object2.type == Phaser.GROUP || object2.type == Phaser.EMITTER)
                 {
@@ -55659,7 +55659,7 @@ Phaser.Physics.Arcade.prototype = {
     * @param {object} callbackContext - The context in which to run the callbacks.
     * @param {boolean} overlapOnly - Just run an overlap or a full collision.
     */
-    collideSpriteVsTilemapLayer: function (sprite, tilemapLayer, collideCallback, processCallback, callbackContext) {
+    collideSpriteVsTilemapLayer: function (sprite, tilemapLayer, collideCallback, processCallback, callbackContext, overlapOnly) {
 
         if (!sprite.body)
         {
@@ -55684,7 +55684,7 @@ Phaser.Physics.Arcade.prototype = {
             {
                 if (processCallback.call(callbackContext, sprite, this._mapData[i]))
                 {
-                    if (this.separateTile(i, sprite.body, this._mapData[i]))
+                    if (this.separateTile(i, sprite.body, this._mapData[i], overlapOnly))
                     {
                         this._total++;
 
@@ -55697,7 +55697,7 @@ Phaser.Physics.Arcade.prototype = {
             }
             else
             {
-                if (this.separateTile(i, sprite.body, this._mapData[i]))
+                if (this.separateTile(i, sprite.body, this._mapData[i], overlapOnly))
                 {
                     this._total++;
 
@@ -56075,9 +56075,10 @@ Phaser.Physics.Arcade.prototype = {
     * @method Phaser.Physics.Arcade#separateTile
     * @param {Phaser.Physics.Arcade.Body} body - The Body object to separate.
     * @param {Phaser.Tile} tile - The tile to collide against.
+    * @param {boolean} overlapOnly - Just run an overlap or a full collision.
     * @return {boolean} Returns true if the body was separated, otherwise false.
     */
-    separateTile: function (i, body, tile) {
+    separateTile: function (i, body, tile, overlapOnly) {
 
         //  We re-check for collision in case body was separated in a previous step
         if (!body.enable || !tile.intersects(body.position.x, body.position.y, body.right, body.bottom))
@@ -56105,6 +56106,12 @@ Phaser.Physics.Arcade.prototype = {
         {
             //   This could happen if the tile was meant to be collided with re: a callback, but otherwise isn't needed for separation
             return false;
+        }
+
+        if (overlapOnly && tile.intersects(body.position.x, body.position.y, body.right, body.bottom))
+        {
+            //  Return early if we only want to check for overlap
+            return true;
         }
 
         var ox = 0;
