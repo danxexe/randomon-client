@@ -1,15 +1,23 @@
 window.onload = ->
 
 	start = ->
-		w = document.body.offsetWidth
-		h = document.body.offsetHeight
-		game = new Phaser.Game(w, h, Phaser.AUTO, '', GameState)
+		game = new Phaser.Game('100%', '100%', Phaser.AUTO, '')
 
-		game.state.add 'game', GameState, true
+		game.state.add 'boot', BootState
+		game.state.add 'game', GameState
 		game.state.add 'battle', BattleState
+
+		game.state.start('boot')
 
 		window.s = GameState
 
+	BootState = 
+		init: ->
+			# @game.stage.disableVisibilityChange = true
+			@game.scale.scaleMode = Phaser.ScaleManager.RESIZE
+
+		create: ->
+			@game.state.start('game')
 
 	GameState = 
 		_setupGUI: ->
@@ -35,6 +43,7 @@ window.onload = ->
 			, @
 
 		preload: ->
+			@game.scale.scaleMode = Phaser.ScaleManager.RESIZE
 
 		create: ->
 			@_setupGUI()
@@ -89,18 +98,24 @@ window.onload = ->
 
 			@_connectToServer() unless @offline
 
+			# Randomize seed after everything is done
+			@game.rnd.sow([Math.random()])
+
 		update: ->
-			# Cleanup old colliding tiles
-			for tile in @colliding_tiles
-				@map.putTile(1, tile.x, tile.y, 'grass')
-			@colliding_tiles = []
-
-			# Update new colliding tiles
-			@game.physics.arcade.overlap @player, @grass_layer, (_, tile) =>
-				@colliding_tiles.push @map.putTile(2, tile.x, tile.y, 'grass')
-
 			@_movePlayer() unless @disable_input
 			@_checkBounds()
+
+			if @delta.x != 0 || @delta.y != 0
+
+				# Cleanup old colliding tiles
+				for tile in @colliding_tiles
+					@map.putTile(1, tile.x, tile.y, 'grass')
+				@colliding_tiles = []
+
+				# Update new colliding tiles
+				@game.physics.arcade.overlap @player, @grass_layer, (_, tile) =>
+					@colliding_tiles.push @map.putTile(2, tile.x, tile.y, 'grass')
+					@_battle() if @game.rnd.between(1, 200) == 1
 
 			if @game.input.keyboard.isDown(Phaser.Keyboard.R) && @game.input.keyboard.isDown(Phaser.Keyboard.CONTROL)
 				document.location.hash = ''
@@ -179,20 +194,20 @@ window.onload = ->
 			player
 
 		_movePlayer: ->
-			dir = { x: 0, y: 0 }
+			@delta = { x: 0, y: 0 }
 			if @game.input.keyboard.isDown(Phaser.Keyboard.LEFT)
-				dir.x -= @speed
+				@delta.x -= @speed
 			if @game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)
-				dir.x += @speed
+				@delta.x += @speed
 			if @game.input.keyboard.isDown(Phaser.Keyboard.UP)
-				dir.y -= @speed
+				@delta.y -= @speed
 			if @game.input.keyboard.isDown(Phaser.Keyboard.DOWN)
-				dir.y += @speed
+				@delta.y += @speed
 
-			@player.x += dir.x
-			@player.y += dir.y
+			@player.x += @delta.x
+			@player.y += @delta.y
 
-			if @player.sync && (dir.x != 0 || dir.y != 0)
+			if @player.sync && (@delta.x != 0 || @delta.y != 0)
 				@player.sync()
 
 		_checkBounds: ->
