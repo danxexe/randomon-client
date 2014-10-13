@@ -20,6 +20,9 @@ window.onload = ->
 			@game.state.start('game')
 
 	GameState = 
+		resize: ->
+			@game.scale.refresh()
+
 		_setupGUI: ->
 			@gui = new dat.GUI()
 			state = @
@@ -146,10 +149,10 @@ window.onload = ->
 				@game.stage.backgroundColor = @game.rnd.color()
 
 			scale = 2
-			tile_w = @tile_w * scale
-			tile_h = @tile_h * scale
-			map_w = @map_w / scale
-			map_h = @map_h / scale
+			@grass_tile_w = @tile_w * scale
+			@grass_tile_h = @tile_h * scale
+			@grass_map_w = @map_w / scale
+			@grass_map_h = @map_h / scale
 
 			# Create tiles
 
@@ -157,25 +160,30 @@ window.onload = ->
 			colors.push Phaser.Color.interpolateColorWithRGB(@game.stage.backgroundColor, 0, 0, 0, 100, 20)
 			colors.push Phaser.Color.interpolateColorWithRGB(colors[0], 0, 0, 0, 100, 10)
 
-			map_tiles = new Phaser.BitmapData(@game, 'map-tiles', tile_w * (colors.length + 1), tile_h)
+			map_tiles = new Phaser.BitmapData(@game, 'map-tiles', @grass_tile_w * (colors.length + 1), @grass_tile_h)
 			@game.cache.addBitmapData('map-tiles', map_tiles)
 			for color, i in colors
-				map_tiles.rect tile_w * (i + 1), 0, tile_w, tile_h, Phaser.Color.getWebRGB(color)
+				map_tiles.rect @grass_tile_w * (i + 1), 0, @grass_tile_w, @grass_tile_h, Phaser.Color.getWebRGB(color)
 
 			# Create map
 
-			@map = @game.add.tilemap(null, tile_w, tile_h, map_w, map_h)
-			@map.addTilesetBitmapData map_tiles, 0, tile_w, tile_h
+			@map = @game.add.tilemap(null, @grass_tile_w, @grass_tile_h, @grass_map_w, @grass_map_h)
+			@map.addTilesetBitmapData map_tiles, 0, @grass_tile_w, @grass_tile_h
 
-			@grass_layer = @map.createBlankLayer 'grass', map_w, map_h, tile_w, tile_h, @group
+			@_createGrass()
 
-			for i in [0..((map_w * map_h) / 2)]
-				x = @game.rnd.between(0, map_w - 1)
-				y = @game.rnd.between(0, map_h - 1)
+			@colliding_tiles = []
+
+		_createGrass: ->
+			@grass_layer.destroy() if @grass_layer?
+			@grass_layer = @map.createBlankLayer 'grass', @grass_map_w, @grass_map_h, @grass_tile_w, @grass_tile_h, @group
+
+			for i in [0..((@grass_map_w * @grass_map_h) / 2)]
+				x = @game.rnd.between(0, @grass_map_w - 1)
+				y = @game.rnd.between(0, @grass_map_h - 1)
 				tile = @map.putTile(1, x, y, 'grass')
 
 			@map.setCollision [1, 2], true, 'grass'
-			@colliding_tiles = []
 
 		_generatePlayerId: ->
 			@game.rnd.uuid()
