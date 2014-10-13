@@ -29,8 +29,11 @@ window.onload = ->
 			@gui_controller =
 				triggerBattle: ->
 					state._battle()
+				clearData: ->
+					localStorage.clear()
 
 			@gui.add(@gui_controller, 'triggerBattle').name('Battle!')
+			@gui.add(@gui_controller, 'clearData').name('Clear data')
 
 		_battle: ->
 			@disable_input = true
@@ -77,7 +80,7 @@ window.onload = ->
 			@group = @game.add.group()
 			@disable_input = false
 
-			@player = @_createPlayer(@world.player?.id)
+			@player = @_createLocalPlayer()
 			@game.physics.enable(@player)
 
 			if @world.player?
@@ -188,8 +191,7 @@ window.onload = ->
 		_generatePlayerId: ->
 			@game.rnd.uuid()
 
-		_createPlayer: (id = null) ->
-			player_id = if id? then id else @_generatePlayerId()
+		_createPlayer: (player_id) ->
 			@game.rnd.sow(player_id)
 
 			x = @game.world.centerX - @tile_w / 2
@@ -200,6 +202,13 @@ window.onload = ->
 			player = @group.add @game.add.sprite(x, y, player_tex)
 			player.id = player_id
 			player
+
+		_createLocalPlayer: ->
+			unless player_id = localStorage.getItem('player_id')
+				player_id = @_generatePlayerId()
+				localStorage.setItem('player_id', player_id)
+
+			@_createPlayer(player_id)
 
 		_movePlayer: ->
 			@delta = { x: 0, y: 0 }
