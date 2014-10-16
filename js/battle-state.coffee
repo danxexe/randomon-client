@@ -24,13 +24,18 @@ BattleState =
 		@player.sprite.visible = visible
 
 	create: ->
+		BootState.ensurePlayerId()
+		BootState.ensureWorldId()
+		BootState.ensureEncounters()
+
 		@_setupGUI()
 
+		@stage.backgroundColor = 0xffffff
 		@world.setBounds(0, 0, @camera.width, @camera.height)
 
 		@enemy = @_createCreature(x: @world.centerX + 200, y: 100, lv: @game.rnd.between(1, 100))
 		@_createCreatureInfo(@enemy, x: 40, y: 30)
-		@player = @_createCreature(x: 200, y: 400, scale: 16 * 3, seed: @world.player.id)
+		@player = @_createCreature(x: 200, y: 400, scale: 16 * 3, seed: @world.player_id)
 		@_createCreatureInfo(@player, x: @camera.width - 600, y: @camera.height - 200)
 
 		@_showSprites(@gui_controller.show_sprites)

@@ -1,6 +1,8 @@
 window.onload = ->
 
 	start = ->
+		window.BootState = BootState
+
 		game = new Phaser.Game('100%', '100%', Phaser.AUTO, '')
 
 		game.state.add 'boot', BootState
@@ -18,7 +20,34 @@ window.onload = ->
 			@game.scale.scaleMode = Phaser.ScaleManager.RESIZE
 
 		create: ->
-			@game.state.start('game')
+			state = url('?state') || 'game'
+			@game.state.start(state)
+
+		ensurePlayerId: ->
+			@world.player_id ?= localStorage.getItem('player_id') || (
+				console.log 'new id'
+				@game.rnd.sow([Math.random()])
+				player_id = @game.rnd.uuid()
+				localStorage.setItem('player_id', player_id)
+				player_id
+			)
+
+		ensureWorldId: ->
+			@world.world_id ?= if document.location.hash == ''
+				@game.rnd.sow([Math.random()])
+				document.location.hash = @game.rnd.uuid()
+			else
+				document.location.hash.replace /^#/, ''
+
+		ensureEncounters: ->
+			@game.rnd.sow(@ensureWorldId() + 'encounters')
+
+			@world.encounters = [
+				@game.rnd.uuid()
+				@game.rnd.uuid()
+				@game.rnd.uuid()
+				@game.rnd.uuid()
+			]
 
 	GameState = 
 		resize: ->
@@ -53,6 +82,9 @@ window.onload = ->
 			@game.scale.scaleMode = Phaser.ScaleManager.RESIZE
 
 		create: ->
+			BootState.ensurePlayerId()
+			BootState.ensureWorldId()
+
 			@_setupGUI()
 
 			@offline = document.location.search.match(/offline=true/)?
@@ -96,12 +128,7 @@ window.onload = ->
 
 			@others = {}
 
-			@world.encounters = @encounters = [
-				@game.rnd.uuid()
-				@game.rnd.uuid()
-				@game.rnd.uuid()
-				@game.rnd.uuid()
-			]
+			BootState.ensureEncounters()
 
 			@_connectToServer() unless @offline
 
@@ -137,14 +164,8 @@ window.onload = ->
 				x: @player.x
 				y: @player.y
 
-		_getOrGenerateWordId: ->
-			if document.location.hash == ''
-				document.location.hash = @game.rnd.uuid()
-			else
-				document.location.hash.replace /^#/, ''
-
 		_createWorld: ->
-			@world_id = @_getOrGenerateWordId()
+			@world_id = @world.world_id
 			@game.rnd.sow(@world_id)
 
 			if @light_bg
@@ -189,9 +210,6 @@ window.onload = ->
 
 			@map.setCollision [1, 2], true, 'grass'
 
-		_generatePlayerId: ->
-			@game.rnd.uuid()
-
 		_createPlayer: (player_id) ->
 			@game.rnd.sow(player_id)
 
@@ -205,11 +223,7 @@ window.onload = ->
 			player
 
 		_createLocalPlayer: ->
-			unless player_id = localStorage.getItem('player_id')
-				player_id = @_generatePlayerId()
-				localStorage.setItem('player_id', player_id)
-
-			@_createPlayer(player_id)
+			@_createPlayer(@world.player_id)
 
 		_movePlayer: ->
 			@delta = { x: 0, y: 0 }
