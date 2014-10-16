@@ -254,7 +254,7 @@ textarea {
     src: url('../fonts/Minecraftia-Regular.ttf') format('truetype');
 }
 .preload-font-minecraftia:before {
-    content: "";
+    content: "preload";
     font-family: 'Minecraftia';
     position: absolute;
     top: -1000px;
