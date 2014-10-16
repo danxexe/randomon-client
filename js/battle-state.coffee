@@ -1,13 +1,27 @@
 BattleState = 
 	_setupGUI: ->
+		state = @
 		game = @game
 		gui = @gui = new dat.GUI()
 		@gui_controller =
 			run: ->
 				gui.destroy()
 				game.state.start 'game'
+			show_sprites: !!localStorage.getItem('battle.show_sprites')
+
+		Object.defineProperty @gui_controller, 'show_sprites',
+			get: ->
+				if localStorage.getItem('battle.show_sprites')? then JSON.parse(localStorage.getItem('battle.show_sprites')) else true
+			set: (val) ->
+				localStorage.setItem('battle.show_sprites', val)
+				state._showSprites val
 
 		@gui.add(@gui_controller, 'run').name('Run!')
+		@gui.add(@gui_controller, 'show_sprites').name('Show sprites')
+
+	_showSprites: (visible) ->
+		@enemy.sprite.visible = visible
+		@player.sprite.visible = visible
 
 	create: ->
 		@_setupGUI()
@@ -18,6 +32,8 @@ BattleState =
 		@_createCreatureInfo(@enemy, x: 40, y: 30)
 		@player = @_createCreature(x: 200, y: 400, scale: 16 * 3, seed: @world.player.id)
 		@_createCreatureInfo(@player, x: @camera.width - 600, y: @camera.height - 200)
+
+		@_showSprites(@gui_controller.show_sprites)
 
 	_createCreature: (options = {}) ->
 		options.scale ?= 16

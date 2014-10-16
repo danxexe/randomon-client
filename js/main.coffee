@@ -10,6 +10,7 @@ window.onload = ->
 		game.state.start('boot')
 
 		window.s = GameState
+		window.g = game
 
 	BootState = 
 		init: ->
