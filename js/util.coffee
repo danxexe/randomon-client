@@ -7,6 +7,9 @@ if Phaser?
 
 		Phaser.Color.getColor32(1, r, g, b)
 
+	Phaser.RandomDataGenerator::randomize = ->
+		@sow([Math.random()])
+
 	Phaser.Color.toArray = (color) ->
 		[Phaser.Color.getRed(color), Phaser.Color.getGreen(color), Phaser.Color.getBlue(color)]
 

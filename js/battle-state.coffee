@@ -43,6 +43,7 @@ BattleState =
 		@stage.backgroundColor = 0xffffff
 		@world.setBounds(0, 0, @camera.width, @camera.height)
 
+		@game.rnd.randomize()
 		@enemy = @_createCreature(x: @world.centerX + 200, y: 100, lv: @game.rnd.between(1, 100))
 		@enemy.showStats('enemy-stats')
 		@_createCreatureInfo(@enemy, x: 40, y: 30)

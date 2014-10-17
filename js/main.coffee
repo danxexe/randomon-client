@@ -26,7 +26,7 @@ window.onload = ->
 		ensurePlayerId: ->
 			@world.player_id ?= localStorage.getItem('player_id') || (
 				console.log 'new id'
-				@game.rnd.sow([Math.random()])
+				@game.rnd.randomize()
 				player_id = @game.rnd.uuid()
 				localStorage.setItem('player_id', player_id)
 				player_id
@@ -34,7 +34,7 @@ window.onload = ->
 
 		ensureWorldId: ->
 			@world.world_id ?= if document.location.hash == ''
-				@game.rnd.sow([Math.random()])
+				@game.rnd.randomize()
 				document.location.hash = @game.rnd.uuid()
 			else
 				document.location.hash.replace /^#/, ''
@@ -133,7 +133,7 @@ window.onload = ->
 			@_connectToServer() unless @offline
 
 			# Randomize seed after everything is done
-			@game.rnd.sow([Math.random()])
+			@game.rnd.randomize()
 
 		update: ->
 			@_movePlayer() unless @disable_input
