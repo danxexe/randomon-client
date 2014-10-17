@@ -7,7 +7,6 @@ BattleState =
 			run: ->
 				gui.destroy()
 				game.state.start 'game'
-			show_sprites: !!localStorage.getItem('battle.show_sprites')
 
 		Object.defineProperty @gui_controller, 'show_sprites',
 			get: ->
@@ -16,12 +15,23 @@ BattleState =
 				localStorage.setItem('battle.show_sprites', val)
 				state._showSprites val
 
+		Object.defineProperty @gui_controller, 'show_stats',
+			get: ->
+				if localStorage.getItem('battle.show_stats')? then JSON.parse(localStorage.getItem('battle.show_stats')) else true
+			set: (val) ->
+				localStorage.setItem('battle.show_stats', val)
+				state._showStats val
+
 		@gui.add(@gui_controller, 'run').name('Run!')
 		@gui.add(@gui_controller, 'show_sprites').name('Show sprites')
+		@gui.add(@gui_controller, 'show_stats').name('Show stats')
 
 	_showSprites: (visible) ->
 		@enemy.sprite.visible = visible
 		@player.sprite.visible = visible
+
+	_showStats: (visible) ->
+		if visible then $('#overlay').show() else $('#overlay').hide()
 
 	create: ->
 		BootState.ensurePlayerId()
@@ -34,11 +44,14 @@ BattleState =
 		@world.setBounds(0, 0, @camera.width, @camera.height)
 
 		@enemy = @_createCreature(x: @world.centerX + 200, y: 100, lv: @game.rnd.between(1, 100))
+		@enemy.showStats('enemy-stats')
 		@_createCreatureInfo(@enemy, x: 40, y: 30)
 		@player = @_createCreature(x: 200, y: 400, scale: 16 * 3, seed: @world.player_id)
+		@player.showStats('player-stats')
 		@_createCreatureInfo(@player, x: @camera.width - 600, y: @camera.height - 200)
 
 		@_showSprites(@gui_controller.show_sprites)
+		@_showStats(@gui_controller.show_stats)
 
 	_createCreature: (options = {}) ->
 		options.scale ?= 16

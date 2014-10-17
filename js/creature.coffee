@@ -40,4 +40,9 @@ class Creature extends CreatureBitmap
 
 		@sprite
 
+	showStats: (id) ->
+		source   = $("#creature-stats-template").html()
+		template = Handlebars.compile(source)
+		$(template(@base_stats)).appendTo($('#overlay')).attr('id', id)
+
 window.Creature = Creature

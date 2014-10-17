@@ -267,3 +267,34 @@ textarea {
 html, body {
     height: 100%;
 }
+
+#overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+#overlay .stats {
+    display: inline-block;
+    background: #fff;
+    font-family: 'Minecraftia';
+    text-align: center;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+#overlay .stats table {
+    border: #DEDEDE 2px solid;
+}
+#overlay #player-stats:before {
+    content: "Player";
+}
+#overlay #enemy-stats:before {
+    content: "Enemy";
+}
+#overlay .stats th, td {
+    padding: 12px 8px 0px;
+    border: #DEDEDE 1px solid;
+    text-align: right;
+}

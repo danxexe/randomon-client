@@ -9,10 +9,25 @@
 		<script src="js/vendor/phoenix.js"></script>
 		<script src="js/vendor/dat.gui.js"></script>
 		<script src="js/vendor/url.js"></script>
+		<script src="js/vendor/jquery.js"></script>
+		<script src="js/vendor/handlebars.js"></script>
 	</head>
 	<body>
+		<script id="creature-stats-template" type="text/x-handlebars-template">
+			<div class="stats">
+				<table>
+					<tr><th>HP</th><td>{{ hp }}</td></tr>
+					<tr><th>Atk</th><td>{{ atk }}</td></tr>
+					<tr><th>Def</th><td>{{ def }}</td></tr>
+					<tr><th>SpAtk</th><td>{{ spatk }}</td></tr>
+					<tr><th>SpDef</th><td>{{ spdef }}</td></tr>
+					<tr><th>Spd</th><td>{{ spd }}</td></tr>
+				</table>
+			</div>
+		</script>
 		<div class="preload-font-minecraftia"></div>
 		<div id="screen"></div>
+		<div id="overlay"></div>
 		<script src="js/env.js"></script>
 		<script src="js/util.js"></script>
 		<script src="js/creature-bitmap.js"></script>
