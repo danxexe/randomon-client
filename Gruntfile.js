@@ -36,8 +36,19 @@ module.exports = function (grunt) {
                             }
                         });
 
+                        var opal = st({
+                          root: __dirname,
+                          match: /(.+)\.js/,
+                          normalize: '$1.rb',
+                          transform: function (path, text, send) {
+                            var opal = require('opal/lib/opal-node.js');
+                            send(OpalNode.compile(text), {'Content-Type': 'application/javascript'});
+                          }
+                        });
+
                         middlewares.unshift(env);
                         middlewares.unshift(coffee);
+                        middlewares.unshift(opal);
                         return middlewares;
                     }
                 }
