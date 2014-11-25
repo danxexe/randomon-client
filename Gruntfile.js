@@ -41,8 +41,8 @@ module.exports = function (grunt) {
                           match: /(.+)\.js/,
                           normalize: '$1.rb',
                           transform: function (path, text, send) {
-                            var opal = require('opal/lib/opal-node.js');
-                            send(OpalNode.compile(text), {'Content-Type': 'application/javascript'});
+                            var opal = require('opal/lib/opal.js');
+                            send(Opal.compile(text), {'Content-Type': 'application/javascript'});
                           }
                         });
 
