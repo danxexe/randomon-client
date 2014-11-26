@@ -31,19 +31,19 @@ module.exports = function (grunt) {
                             path: '/js',
                             // cache: true,
                             // maxage: 3600,
-                            options: {
-                                // minify: true
-                            }
+                            // options: {
+                            //     minify: true
+                            // }
                         });
 
                         var opal = st({
-                          root: __dirname,
-                          match: /(.+)\.js/,
-                          normalize: '$1.rb',
-                          transform: function (path, text, send) {
-                            var opal = require('./opal-node.js');
-                            send(Opal.compile(text), {'Content-Type': 'application/javascript'});
-                          }
+                            root: __dirname,
+                            match: /(.+)\.js/,
+                            normalize: '$1.rb',
+                            transform: function (path, text, send) {
+                                var opal = require('./opal-node.js');
+                                send(Opal.compile(text), {'Content-Type': 'application/javascript'});
+                            }
                         });
 
                         middlewares.unshift(env);

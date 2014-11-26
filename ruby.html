@@ -3,6 +3,25 @@
 	<head>
 		<meta charset="utf-8">
 		<title>Opal test</title>
+		<style type="text/css" media="screen">
+			#editor {
+				position: absolute;
+				top: 0;
+				right: 50%;
+				bottom: 0;
+				left: 0;
+				border-right: 1px solid #BBB;
+			}
+
+			#stage {
+				position: absolute;
+				top: 0;
+				right: 0;
+				bottom: 0;
+				left: 50%;
+				border-left: 1px solid #DEDEDE;
+			}
+		</style>
 		<link rel="stylesheet" href="css/normalize.css">
 		<link rel="stylesheet" href="css/main.css">
 		<script src="js/vendor/phaser.js"></script>
@@ -10,6 +29,47 @@
 		<script src="js/vendor/opal.js"></script>
 	</head>
 	<body>
+		<div id="editor">canvas = Browser::Canvas.new width: 400, height: 400
+canvas.append_to `window.stage`
+
+canvas.path do
+    canvas.style.fill = 'blue'
+    canvas.rect 0, 0, 200, 200
+    canvas.fill
+end
+
+canvas.path do
+    canvas.style.fill = 'green'
+    canvas.rect 100, 100, 200, 200
+    canvas.fill
+end</div>
+		<div id="stage"></div>
+		<script src="js/vendor/ace.js"></script>
+		<script src="js/vendor/ace/theme-tomorrow.js"></script>
+		<script src="js/vendor/ace/mode-ruby.js"></script>
 		<script src="js/ruby.js"></script>
+		<script>
+			var editor = ace.edit("editor");
+			editor.setTheme("ace/theme/tomorrow");
+			editor.getSession().setMode("ace/mode/ruby");
+
+			var compiler = Opal.Opal.Compiler.$new();
+
+			var recompile = function() {
+				return compiler.$compile(editor.getValue());
+			}
+			eval(recompile());
+
+			var i = 0;
+			editor.on('change', function() {
+				try {
+					var compiled = recompile();
+					window.stage.innerHTML = '';
+					eval(compiled);
+				} finally {
+					return true;
+				}
+			});
+		</script>
 	</body>
 </html>
