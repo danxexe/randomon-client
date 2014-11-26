@@ -55,13 +55,13 @@ class Canvas
     end
   end
 
-  def width
-    # @element[:width].to_i
+  def width(val = nil)
+    @element.width = val if val
     @element.width.to_i
   end
 
-  def height
-    # @element[:height].to_i
+  def height(val = nil)
+    @element.height = val if val
     @element.height.to_i
   end
 
