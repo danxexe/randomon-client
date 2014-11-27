@@ -58,7 +58,7 @@ end</div>
 			var compiler = Opal.Opal.Compiler.$new();
 
 			var recompile = function() {
-				var source = "sketch { " + editor.getValue() + " }";
+				var source = "sketch do\n" + editor.getValue() + "\nend";
 				return compiler.$compile(source);
 			}
 			eval(recompile());
