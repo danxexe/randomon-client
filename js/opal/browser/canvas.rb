@@ -154,6 +154,8 @@ class Canvas
 
   def rect(x, y, width, height)
     `#@native.rect(x, y, width, height)`
+    `#@native.strokeRect(x, y, width, height)`
+    # fill
 
     self
   end
@@ -279,11 +281,13 @@ class Canvas
   end
 
   def path(&block)
+    `#@native.save()`
     `#@native.beginPath()`
 
     instance_eval(&block)
 
     `#@native.closePath()`
+    `#@native.restore()`
 
     self
   end
