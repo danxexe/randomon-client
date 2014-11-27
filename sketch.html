@@ -33,26 +33,20 @@
 	</head>
 	<body>
 		<div id="editor">path do
-    style.fill = 'blue'
     rect 0, 0, 200, 200
-    fill
+    fill 'blue'
 end
 
 path do
-    style.fill = 'green'
-    style.stroke = 'white'
-    style.line.width = 10
     rect 100, 100, 200, 200
-    fill
+    stroke 'white', 10
+    fill 'green'
 end
 
 path do
-    style.fill = '#DEDEDE'
-    style.stroke = 'white'
-    style.line.width = 10
     arc 100, 100, 40, { start: 0, end: 2 * `Math.PI` }
-    stroke
-    fill
+    stroke 'white', 10
+    fill '#DEDEDE'
 end</div>
 		<div id="stage"></div>
 		<script src="js/vendor/ace.js"></script>

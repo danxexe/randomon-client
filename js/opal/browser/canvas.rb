@@ -290,7 +290,8 @@ class Canvas
     self
   end
 
-  def fill(&block)
+  def fill(color = nil, &block)
+    style.fill = color if color
     path(&block) if block
 
     `#@native.fill()`
@@ -298,7 +299,9 @@ class Canvas
     self
   end
 
-  def stroke(&block)
+  def stroke(color = nil, width = nil, &block)
+    style.stroke = color if color
+    style.line.width = width if width
     path(&block) if block
 
     `#@native.stroke()`
