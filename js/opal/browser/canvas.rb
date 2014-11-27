@@ -152,14 +152,24 @@ class Canvas
     line_to x2, y2
   end
 
-  def rect(x, y, width, height)
-    `#@native.rect(x, y, width, height)`
+  def rect(x, y, width, height, &block)
+    path do
+      `#@native.rect(x, y, width, height)`
+      stroke
+      fill
+      instance_eval &block if block
+    end
 
     self
   end
 
-  def arc(x, y, radius, angle, clockwise = false)
-    `#@native.arc(x, y, radius, #{angle[:start]}, #{angle[:end]}, !clockwise)`
+  def arc(x, y, radius, angle, clockwise = false, &block)
+    path do
+      `#@native.arc(x, y, radius, #{angle[:start]}, #{angle[:end]}, !clockwise)`
+      stroke
+      fill
+      instance_eval &block if block
+    end
 
     self
   end

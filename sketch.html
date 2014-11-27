@@ -32,19 +32,16 @@
 		<script src="js/vendor/opal.js"></script>
 	</head>
 	<body>
-		<div id="editor">path do
-    rect 0, 0, 200, 200
+		<div id="editor">rect 0, 0, 200, 200 do
     fill 'blue'
 end
 
-path do
-    rect 100, 100, 200, 200
+rect 100, 100, 200, 200 do
     stroke 'white', 10
     fill 'green'
 end
 
-path do
-    arc 100, 100, 40, { start: 0, end: 2 * `Math.PI` }
+arc 100, 100, 40, { start: 0, end: 2 * `Math.PI` } do
     stroke 'white', 10
     fill '#DEDEDE'
 end</div>
