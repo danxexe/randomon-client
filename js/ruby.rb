@@ -8,7 +8,7 @@ end
 
 def canvas
   $canvas ||= begin
-    c = Browser::Canvas.new
+    c = Browser::Canvas.new width: `stage.clientWidth`, height: `stage.clientHeight`
     c.append_to stage
     c
   end
