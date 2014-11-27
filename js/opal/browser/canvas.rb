@@ -154,8 +154,6 @@ class Canvas
 
   def rect(x, y, width, height)
     `#@native.rect(x, y, width, height)`
-    `#@native.strokeRect(x, y, width, height)`
-    # fill
 
     self
   end

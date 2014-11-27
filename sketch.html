@@ -44,6 +44,15 @@ path do
     style.line.width = 10
     rect 100, 100, 200, 200
     fill
+end
+
+path do
+    style.fill = '#DEDEDE'
+    style.stroke = 'white'
+    style.line.width = 10
+    arc 100, 100, 40, { start: 0, end: 2 * `Math.PI` }
+    stroke
+    fill
 end</div>
 		<div id="stage"></div>
 		<script src="js/vendor/ace.js"></script>
